@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   INITIAL_ALBUMS, 
   INITIAL_TRACKS, 
@@ -44,6 +44,44 @@ export default function App() {
   const [playlistTracksMap, setPlaylistTracksMap] = useState<Record<number, number[]>>(PLAYLIST_TRACKS_MAP);
   const [artists, setArtists] = useState<Artist[]>(INITIAL_ARTISTS);
   const [genres, setGenres] = useState<Genre[]>(INITIAL_GENRES);
+
+  // Database Connection Indicator
+  const [dbStatus, setDbStatus] = useState({ connected: false, mode: 'sandbox-mock' });
+
+  // Load resources from Neon Postgres database via server-side APIs on mount
+  useEffect(() => {
+    fetch('/api/db-status')
+      .then(res => res.json())
+      .then(status => {
+        setDbStatus(status);
+        console.log(`[MusicStore Web] Database connection status:`, status);
+      })
+      .catch(() => {});
+
+    Promise.all([
+      fetch('/api/artists').then(r => r.ok ? r.json() : null),
+      fetch('/api/albums').then(r => r.ok ? r.json() : null),
+      fetch('/api/tracks').then(r => r.ok ? r.json() : null),
+      fetch('/api/clients').then(r => r.ok ? r.json() : null),
+      fetch('/api/employees').then(r => r.ok ? r.json() : null),
+      fetch('/api/invoices').then(r => r.ok ? r.json() : null),
+      fetch('/api/playlists').then(r => r.ok ? r.json() : null),
+      fetch('/api/genres').then(r => r.ok ? r.json() : null)
+    ])
+    .then(([artistsData, albumsData, tracksData, clientsData, employeesData, invoicesData, playlistsData, genresData]) => {
+      if (artistsData && artistsData.length > 0) setArtists(artistsData);
+      if (albumsData && albumsData.length > 0) setAlbums(albumsData);
+      if (tracksData && tracksData.length > 0) setTracks(tracksData);
+      if (clientsData && clientsData.length > 0) setClients(clientsData);
+      if (employeesData && employeesData.length > 0) setEmployees(employeesData);
+      if (invoicesData && invoicesData.length > 0) setInvoices(invoicesData);
+      if (playlistsData && playlistsData.length > 0) setPlaylists(playlistsData);
+      if (genresData && genresData.length > 0) setGenres(genresData);
+    })
+    .catch(err => {
+      console.warn('Backend connection unavailable. Operating on sandbox mock states.', err);
+    });
+  }, []);
 
   // Cart and Audio Player states
   const [cartItems, setCartItems] = useState<Track[]>([]);
@@ -93,70 +131,113 @@ export default function App() {
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
 
-    const total = cartItems.reduce((acc, item) => acc + item.unitPrice, 0);
-    const invoiceIdNum = invoices.length + 105;
-    const formattedId = `INV-00${invoiceIdNum}`;
-
-    const newInvoiceLines = cartItems.map((track, i) => ({
-      id: 5000 + i + invoiceIdNum,
-      trackName: track.name,
-      unitPrice: track.unitPrice,
-      quantity: 1,
-    }));
-
-    const newInvoice: Invoice = {
-      id: formattedId,
-      invoiceDate: new Date().toISOString().split('T')[0],
-      billingCity: "São José dos Campos",
-      billingCountry: "Brasil",
-      total: Number(total.toFixed(2)),
-      lines: newInvoiceLines,
-    };
-
-    setInvoices([...invoices, newInvoice]);
-    
-    // Auto-update playlists with purchased tracks
-    if (playlists.length > 1) {
-      const targetPlId = 2; // Favoritos del Rock by default
-      const listTrackIds = playlistTracksMap[targetPlId] || [];
-      const newIds = cartItems.map(c => c.id).filter(id => !listTrackIds.includes(id));
+    fetch('/api/invoices', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id_cliente: 1, // Default customer ID
+        billingCity: "Cusco",
+        billingCountry: "Perú",
+        cartItems: cartItems
+      })
+    })
+    .then(r => r.json())
+    .then(newInvoice => {
+      setInvoices([newInvoice, ...invoices]);
       
-      if (newIds.length > 0) {
-        const updatedMap = {
-          ...playlistTracksMap,
-          [targetPlId]: [...listTrackIds, ...newIds]
-        };
-        setPlaylistTracksMap(updatedMap);
-        setPlaylists(playlists.map(p => p.id === targetPlId ? { ...p, trackCount: p.trackCount + newIds.length } : p));
+      // Auto-update playlists with purchased tracks
+      if (playlists.length > 1) {
+        const targetPlId = 2; // Favoritos del Rock by default
+        const listTrackIds = playlistTracksMap[targetPlId] || [];
+        const newIds = cartItems.map(c => c.id).filter(id => !listTrackIds.includes(id));
+        
+        if (newIds.length > 0) {
+          const updatedMap = {
+            ...playlistTracksMap,
+            [targetPlId]: [...listTrackIds, ...newIds]
+          };
+          setPlaylistTracksMap(updatedMap);
+          setPlaylists(playlists.map(p => p.id === targetPlId ? { ...p, trackCount: p.trackCount + newIds.length } : p));
+        }
       }
-    }
 
-    setCartItems([]);
-    alert(`¡Compra procesada con éxito! Se ha generado tu comprobante ${formattedId} en el historial de facturas.`);
-    setCurrentView('my-invoices');
+      setCartItems([]);
+      alert(`¡Compra procesada con éxito! Se ha generado tu comprobante ${newInvoice.id} en el historial de facturas.`);
+      setCurrentView('my-invoices');
+    })
+    .catch(() => {
+      const total = cartItems.reduce((acc, item) => acc + item.unitPrice, 0);
+      const invoiceIdNum = invoices.length + 105;
+      const formattedId = `INV-00${invoiceIdNum}`;
+
+      const newInvoiceLines = cartItems.map((track, i) => ({
+        id: 5000 + i + invoiceIdNum,
+        trackName: track.name,
+        unitPrice: track.unitPrice,
+        quantity: 1,
+      }));
+
+      const newInvoice: Invoice = {
+        id: formattedId,
+        invoiceDate: new Date().toISOString().split('T')[0],
+        billingCity: "Cusco",
+        billingCountry: "Perú",
+        total: Number(total.toFixed(2)),
+        lines: newInvoiceLines,
+      };
+
+      setInvoices([newInvoice, ...invoices]);
+      setCartItems([]);
+      alert(`¡Compra procesada con éxito en modo Sandbox! Se ha generado tu comprobante ${formattedId} en el historial.`);
+      setCurrentView('my-invoices');
+    });
   };
 
   // Playlist state mutations
   const handleCreatePlaylist = (name: string) => {
-    const nextId = playlists.reduce((max, p) => p.id > max ? p.id : max, 0) + 1;
-    const newList: Playlist = {
-      id: nextId,
-      name,
-      trackCount: 0,
-      isCustom: true,
-    };
-    setPlaylists([...playlists, newList]);
-    setPlaylistTracksMap({
-      ...playlistTracksMap,
-      [nextId]: [],
+    fetch('/api/playlists', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    })
+    .then(r => r.json())
+    .then(newPl => {
+      setPlaylists([...playlists, newPl]);
+      setPlaylistTracksMap({
+        ...playlistTracksMap,
+        [newPl.id]: [],
+      });
+    })
+    .catch(() => {
+      const nextId = playlists.reduce((max, p) => p.id > max ? p.id : max, 0) + 1;
+      const newList: Playlist = {
+        id: nextId,
+        name,
+        trackCount: 0,
+        isCustom: true,
+      };
+      setPlaylists([...playlists, newList]);
+      setPlaylistTracksMap({
+        ...playlistTracksMap,
+        [nextId]: [],
+      });
     });
   };
 
   const handleDeletePlaylist = (id: number) => {
-    setPlaylists(playlists.filter((p) => p.id !== id));
-    const newMap = { ...playlistTracksMap };
-    delete newMap[id];
-    setPlaylistTracksMap(newMap);
+    fetch(`/api/playlists/${id}`, { method: 'DELETE' })
+    .then(() => {
+      setPlaylists(playlists.filter((p) => p.id !== id));
+      const newMap = { ...playlistTracksMap };
+      delete newMap[id];
+      setPlaylistTracksMap(newMap);
+    })
+    .catch(() => {
+      setPlaylists(playlists.filter((p) => p.id !== id));
+      const newMap = { ...playlistTracksMap };
+      delete newMap[id];
+      setPlaylistTracksMap(newMap);
+    });
   };
 
   const handleRemoveTrackFromPlaylist = (playlistId: number, trackId: number) => {
@@ -190,15 +271,43 @@ export default function App() {
 
   // Admin Client operations
   const handleAddClient = (client: Client) => {
-    setClients([...clients, client]);
+    fetch('/api/clients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(client)
+    })
+    .then(r => r.json())
+    .then(newClient => {
+      setClients([...clients, newClient]);
+    })
+    .catch(() => {
+      setClients([...clients, client]);
+    });
   };
 
   const handleUpdateClient = (updated: Client) => {
-    setClients(clients.map((c) => (c.id === updated.id ? updated : c)));
+    fetch(`/api/clients/${updated.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    })
+    .then(r => r.json())
+    .then(updatedClient => {
+      setClients(clients.map((c) => (c.id === updatedClient.id ? updatedClient : c)));
+    })
+    .catch(() => {
+      setClients(clients.map((c) => (c.id === updated.id ? updated : c)));
+    });
   };
 
   const handleDeleteClient = (id: number) => {
-    setClients(clients.filter((c) => c.id !== id));
+    fetch(`/api/clients/${id}`, { method: 'DELETE' })
+    .then(() => {
+      setClients(clients.filter((c) => c.id !== id));
+    })
+    .catch(() => {
+      setClients(clients.filter((c) => c.id !== id));
+    });
   };
 
   // Admin Album operations
