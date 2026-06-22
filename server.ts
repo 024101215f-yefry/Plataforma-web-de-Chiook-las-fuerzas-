@@ -7,6 +7,11 @@ import { createServer as createViteServer } from "vite";
 // Load environment variables
 dotenv.config();
 
+// Fix Neon URL: ensure sslmode=require is present
+if (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('sslmode=')) {
+  process.env.DATABASE_URL += (process.env.DATABASE_URL.includes('?') ? '&' : '?') + 'sslmode=require';
+}
+
 // Standard data exports as fallbacks if database is missing/unconfigured
 import { 
   INITIAL_ALBUMS, 

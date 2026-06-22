@@ -7,12 +7,24 @@ app.use(express.json());
 let prisma: any = null;
 let isDbConnected = false;
 
+// Fix Neon URL: ensure sslmode=require is present
+function fixDbUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  if (!url.includes('sslmode=')) {
+    url += (url.includes('?') ? '&' : '?') + 'sslmode=require';
+  }
+  return url;
+}
+
 // Dynamic Prisma import — fails gracefully if @prisma/client not available
 async function initDb() {
-  if (!process.env.DATABASE_URL) return;
+  const dbUrl = fixDbUrl(process.env.DATABASE_URL);
+  if (!dbUrl) return;
+  // Set the fixed URL so PrismaClient picks it up
+  process.env.DATABASE_URL = dbUrl;
   try {
     const { PrismaClient } = await import('@prisma/client');
-    prisma = new PrismaClient();
+    prisma = new PrismaClient({ datasources: { db: { url: dbUrl } } });
     await prisma.$connect();
     isDbConnected = true;
     console.log("[API] Neon DB connected");
