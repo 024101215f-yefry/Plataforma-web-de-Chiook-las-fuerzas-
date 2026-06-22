@@ -17,22 +17,23 @@ function fixDbUrl(url: string | undefined): string | undefined {
   return url;
 }
 
-async function initDb() {
+async function ensureDb() {
   const dbUrl = fixDbUrl(process.env.DATABASE_URL);
-  if (!dbUrl) return;
+  if (!dbUrl) return false;
+  if (pool && isDbConnected) return true;
   try {
-    pool = new Pool({ connectionString: dbUrl, max: 1, idleTimeoutMillis: 5000, ssl: { rejectUnauthorized: false } });
+    if (!pool) pool = new Pool({ connectionString: dbUrl, max: 1, idleTimeoutMillis: 8000, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 5000 });
     const client = await pool.connect();
     await client.query('SELECT 1');
     client.release();
     isDbConnected = true;
-    console.log("[API] Neon DB connected via pg");
+    return true;
   } catch (e: any) {
     isDbConnected = false;
-    console.warn("[API] DB unavailable:", e.message);
+    return false;
   }
 }
-initDb();
+ensureDb();
 
 function q(s: string) { return `'${s.replace(/'/g, "''")}'`; }
 
@@ -49,19 +50,21 @@ let mockPlaylists = [{id:1,name:"Music",trackCount:0},{id:2,name:"Favorites",tra
 let mockPlaylistTracksMap: Record<number,number[]> = {};
 
 async function dbQuery(text: string, params?: any[]) {
-  if (!pool || !isDbConnected) return null;
+  if (!(await ensureDb())) return null;
   try {
-    const r = await pool.query(text, params);
+    const r = await pool!.query(text, params);
     return r;
   } catch (e: any) {
-    console.warn("[API] dbQuery error:", e?.message);
     return null;
   }
 }
 
 function fmt(ms: number) { return `${Math.floor(ms/60000).toString().padStart(2,"0")}:${Math.floor((ms%60000)/1000).toString().padStart(2,"0")}`; }
 
-app.get("/api/db-status", (req, res) => res.json({ connected: isDbConnected, mode: isDbConnected?"production-neon":"sandbox-mock", dbUrlConfigured: !!process.env.DATABASE_URL, localTime: new Date().toISOString() }));
+app.get("/api/db-status", async (req, res) => {
+  const ok = await ensureDb();
+  res.json({ connected: ok, mode: ok?"production-neon":"sandbox-mock", dbUrlConfigured: !!process.env.DATABASE_URL, localTime: new Date().toISOString() });
+});
 
 // ─── ARTISTS ───────────────────────────────────────────
 app.get("/api/artists", async (req, res) => {
