@@ -21,7 +21,7 @@ async function initDb() {
   const dbUrl = fixDbUrl(process.env.DATABASE_URL);
   if (!dbUrl) return;
   try {
-    pool = new Pool({ connectionString: dbUrl, max: 1, idleTimeoutMillis: 5000 });
+    pool = new Pool({ connectionString: dbUrl, max: 1, idleTimeoutMillis: 5000, ssl: { rejectUnauthorized: false } });
     const client = await pool.connect();
     await client.query('SELECT 1');
     client.release();
@@ -53,7 +53,10 @@ async function dbQuery(text: string, params?: any[]) {
   try {
     const r = await pool.query(text, params);
     return r;
-  } catch { return null; }
+  } catch (e: any) {
+    console.warn("[API] dbQuery error:", e?.message);
+    return null;
+  }
 }
 
 function fmt(ms: number) { return `${Math.floor(ms/60000).toString().padStart(2,"0")}:${Math.floor((ms%60000)/1000).toString().padStart(2,"0")}`; }
