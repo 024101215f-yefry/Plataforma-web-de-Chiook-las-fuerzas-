@@ -37,12 +37,15 @@ model album {
   track     track[]
 
   @@index([artist_id])
+  @@map("El álbum")
 }
 
 model artist {
   artist_id Int     @id
   name      String? @db.VarChar(120)
   album     album[]
+
+  @@map("Artista")
 }
 
 model customer {
@@ -63,6 +66,7 @@ model customer {
   invoice        invoice[]
 
   @@index([support_rep_id])
+  @@map("Cliente")
 }
 
 model employee {
@@ -86,12 +90,15 @@ model employee {
   other_employee employee[] @relation("employeeToemployee")
 
   @@index([reports_to])
+  @@map("Empleado")
 }
 
 model genre {
   genre_id Int     @id
   name     String? @db.VarChar(120)
   track    track[]
+
+  @@map("Género")
 }
 
 model invoice {
@@ -108,12 +115,15 @@ model invoice {
   invoice_line        InvoiceLine[]
 
   @@index([customer_id])
+  @@map("Factura")
 }
 
 model playlist {
   playlist_id    Int              @id
   name           String?          @db.VarChar(120)
   playlist_track playlist_track[]
+
+  @@map("Lista de reproducción")
 }
 
 model playlist_track {
@@ -125,6 +135,7 @@ model playlist_track {
   @@id([playlist_id, track_id])
   @@index([playlist_id])
   @@index([track_id])
+  @@map("Playlist_track")
 }
 
 model track {
@@ -146,4 +157,5 @@ model track {
   @@index([album_id])
   @@index([genre_id])
   @@index([media_type_id])
+  @@map("Pista")
 }
