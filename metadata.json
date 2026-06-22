@@ -1,0 +1,6 @@
+{
+  "name": "MusicStore Web",
+  "description": "Sistema de información web de una tienda de música digital basado en la base de datos Chinook.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
