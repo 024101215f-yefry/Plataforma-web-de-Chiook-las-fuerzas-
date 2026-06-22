@@ -27,7 +27,7 @@ app.use(express.json());
 
 // Lazy-initialized Prisma Client
 let prisma: PrismaClient | null = null;
-let isDbConnected = false;
+let isDbConnected = !!process.env.DATABASE_URL;
 
 function getPrisma(): PrismaClient {
   if (!process.env.DATABASE_URL) {
@@ -461,7 +461,7 @@ app.post("/api/invoices", async (req, res) => {
       const maxInvResult = await db.invoice.aggregate({ _max: { invoice_id: true } });
       const nextInvId = (maxInvResult._max.invoice_id || 0) + 1;
 
-      const maxLineResult = await db.invoice_line.aggregate({ _max: { invoice_line_id: true } });
+      const maxLineResult = await db.invoiceLine.aggregate({ _max: { invoice_line_id: true } });
       const startLineId = (maxLineResult._max.invoice_line_id || 0) + 1;
 
       // Insert new Invoice record
