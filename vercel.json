@@ -1,14 +1,9 @@
 {
-  "buildCommand": "npx prisma generate && vite build",
+  "buildCommand": "vite build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": null,
   "rewrites": [
     { "source": "/(.*)", "destination": "/api" }
-  ],
-  "functions": {
-    "api/index.ts": {
-      "includeFiles": "node_modules/@prisma/client/**"
-    }
-  }
+  ]
 }
