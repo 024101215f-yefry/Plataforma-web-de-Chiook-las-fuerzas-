@@ -6,9 +6,11 @@ import {
   INITIAL_EMPLOYEES, 
   INITIAL_INVOICES, 
   INITIAL_PLAYLISTS, 
-  PLAYLIST_TRACKS_MAP 
+  PLAYLIST_TRACKS_MAP,
+  INITIAL_ARTISTS,
+  INITIAL_GENRES
 } from './data';
-import { UserSession, ViewType, Track, Album, Client, Invoice, Employee, Playlist } from './types';
+import { UserSession, ViewType, Track, Album, Client, Invoice, Employee, Playlist, Artist, Genre } from './types';
 import NavBar from './components/NavBar';
 import AdminSidebar from './components/AdminSidebar';
 import Login from './components/Login';
@@ -21,6 +23,10 @@ import AdminDashboard from './components/AdminDashboard';
 import ClientManagement from './components/ClientManagement';
 import SalesReport from './components/SalesReport';
 import EmployeeManagement from './components/EmployeeManagement';
+import AdminAlbums from './components/AdminAlbums';
+import AdminArtists from './components/AdminArtists';
+import AdminGenres from './components/AdminGenres';
+import AdminTracks from './components/AdminTracks';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
@@ -29,13 +35,15 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('login');
   
   // Database mock states to enable complete local CRUD persistence of lists
-  const [albums] = useState<Album[]>(INITIAL_ALBUMS);
-  const [tracks] = useState<Track[]>(INITIAL_TRACKS);
+  const [albums, setAlbums] = useState<Album[]>(INITIAL_ALBUMS);
+  const [tracks, setTracks] = useState<Track[]>(INITIAL_TRACKS);
   const [clients, setClients] = useState<Client[]>(INITIAL_CLIENTS);
   const [employees, setEmployees] = useState<Employee[]>(INITIAL_EMPLOYEES);
   const [invoices, setInvoices] = useState<Invoice[]>(INITIAL_INVOICES);
   const [playlists, setPlaylists] = useState<Playlist[]>(INITIAL_PLAYLISTS);
   const [playlistTracksMap, setPlaylistTracksMap] = useState<Record<number, number[]>>(PLAYLIST_TRACKS_MAP);
+  const [artists, setArtists] = useState<Artist[]>(INITIAL_ARTISTS);
+  const [genres, setGenres] = useState<Genre[]>(INITIAL_GENRES);
 
   // Cart and Audio Player states
   const [cartItems, setCartItems] = useState<Track[]>([]);
@@ -193,6 +201,63 @@ export default function App() {
     setClients(clients.filter((c) => c.id !== id));
   };
 
+  // Admin Album operations
+  const handleAddAlbum = (album: Album) => {
+    setAlbums([...albums, album]);
+  };
+
+  const handleUpdateAlbum = (updated: Album) => {
+    setAlbums(albums.map((a) => (a.id === updated.id ? updated : a)));
+  };
+
+  const handleDeleteAlbum = (id: number) => {
+    setAlbums(albums.filter((a) => a.id !== id));
+  };
+
+  // Admin Artist operations
+  const handleAddArtist = (artist: Artist) => {
+    setArtists([...artists, artist]);
+  };
+
+  const handleUpdateArtist = (updated: Artist) => {
+    setArtists(artists.map((a) => (a.id === updated.id ? updated : a)));
+  };
+
+  const handleDeleteArtist = (id: number) => {
+    setArtists(artists.filter((a) => a.id !== id));
+  };
+
+  // Admin Genre operations
+  const handleAddGenre = (genre: Genre) => {
+    setGenres([...genres, genre]);
+  };
+
+  const handleUpdateGenre = (updated: Genre) => {
+    setGenres(genres.map((g) => (g.id === updated.id ? updated : g)));
+  };
+
+  const handleDeleteGenre = (id: number) => {
+    setGenres(genres.filter((g) => g.id !== id));
+  };
+
+  // Admin Track operations
+  const handleAddTrack = (track: Track) => {
+    setTracks([...tracks, track]);
+    setAlbums(albums.map(al => al.id === track.albumId ? { ...al, tracksCount: al.tracksCount + 1 } : al));
+  };
+
+  const handleUpdateTrack = (updated: Track) => {
+    setTracks(tracks.map((t) => (t.id === updated.id ? updated : t)));
+  };
+
+  const handleDeleteTrack = (id: number) => {
+    const track = tracks.find(t => t.id === id);
+    setTracks(tracks.filter((t) => t.id !== id));
+    if (track) {
+      setAlbums(albums.map(al => al.id === track.albumId ? { ...al, tracksCount: Math.max(0, al.tracksCount - 1) } : al));
+    }
+  };
+
   // Admin Employee operations
   const handleAddEmployee = (emp: Employee) => {
     setEmployees([...employees, emp]);
@@ -206,7 +271,7 @@ export default function App() {
   const clientRecommendedTracks = tracks.slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-[#1a1a2e] text-white flex flex-col font-sans selection:bg-[#7F77DD] selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-gray-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
       {/* Upper Navigation Menu */}
       <NavBar
         currentView={currentView}
@@ -224,7 +289,7 @@ export default function App() {
           /* Admin views with fixed Sidebar */
           <div className="w-full max-w-[1440px] mx-auto flex flex-row items-stretch flex-1">
             <AdminSidebar currentView={currentView} onNavigate={handleNavigate} />
-            <main className="flex-1 p-6 md:p-8 bg-[#15152a] overflow-x-hidden min-h-[calc(100vh-142px)]">
+            <main className="flex-1 p-6 md:p-8 bg-[#f8fafc] overflow-x-hidden min-h-[calc(100vh-142px)]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentView}
@@ -258,6 +323,42 @@ export default function App() {
                       employees={employees}
                       onAddEmployee={handleAddEmployee}
                       onDeleteEmployee={handleDeleteEmployee}
+                    />
+                  )}
+                  {currentView === 'admin-albums' && (
+                    <AdminAlbums
+                      albums={albums}
+                      artists={artists}
+                      onAddAlbum={handleAddAlbum}
+                      onUpdateAlbum={handleUpdateAlbum}
+                      onDeleteAlbum={handleDeleteAlbum}
+                    />
+                  )}
+                  {currentView === 'admin-artists' && (
+                    <AdminArtists
+                      artists={artists}
+                      onAddArtist={handleAddArtist}
+                      onUpdateArtist={handleUpdateArtist}
+                      onDeleteArtist={handleDeleteArtist}
+                    />
+                  )}
+                  {currentView === 'admin-genres' && (
+                    <AdminGenres
+                      genres={genres}
+                      onAddGenre={handleAddGenre}
+                      onUpdateGenre={handleUpdateGenre}
+                      onDeleteGenre={handleDeleteGenre}
+                    />
+                  )}
+                  {currentView === 'admin-tracks' && (
+                    <AdminTracks
+                      tracks={tracks}
+                      albums={albums}
+                      genres={genres}
+                      onAddTrack={handleAddTrack}
+                      onUpdateTrack={handleUpdateTrack}
+                      onDeleteTrack={handleDeleteTrack}
+                      onPlayTrack={handlePlayTrack}
                     />
                   )}
                 </motion.div>
@@ -331,10 +432,10 @@ export default function App() {
       </div>
 
       {/* Global Footer (Universidad Andina del Cusco Required) */}
-      <footer className="py-4 bg-[#10101e] border-t border-white/5 text-center text-xs text-gray-500 font-sans z-10 select-none shrink-0">
+      <footer className="py-4 bg-white border-t border-gray-200 text-center text-xs text-gray-500 font-sans z-10 select-none shrink-0">
         <div className="w-full max-w-[1440px] mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-2">
           <span>MusicStore Web © 2025 | Universidad Andina del Cusco</span>
-          <span className="text-[10px] text-gray-600 font-mono">Simulación de Producción Académica • Chinook Database</span>
+          <span className="text-[10px] text-gray-400 font-semibold font-mono">Simulación de Producción Académica • Chinook Database</span>
         </div>
       </footer>
     </div>

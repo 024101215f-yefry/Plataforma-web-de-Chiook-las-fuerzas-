@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, BarChart3, Briefcase } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, Briefcase, Disc, Music, Tag, User } from 'lucide-react';
 import { ViewType } from '../types';
 
 interface AdminSidebarProps {
@@ -32,10 +32,34 @@ export default function AdminSidebar({ currentView, onNavigate }: AdminSidebarPr
       description: 'Directorio Interno',
       icon: Briefcase,
     },
+    {
+      view: 'admin-albums' as ViewType,
+      label: 'Gestión Álbumes',
+      description: 'Directorio de Álbumes',
+      icon: Disc,
+    },
+    {
+      view: 'admin-artists' as ViewType,
+      label: 'Gestión Artistas',
+      description: 'Directorio de Artistas',
+      icon: User,
+    },
+    {
+      view: 'admin-genres' as ViewType,
+      label: 'Gestión Géneros',
+      description: 'Categorías de Sonido',
+      icon: Tag,
+    },
+    {
+      view: 'admin-tracks' as ViewType,
+      label: 'Gestión Canciones',
+      description: 'Canciones y Pistas',
+      icon: Music,
+    },
   ];
 
   return (
-    <aside className="w-64 bg-[#111125] border-r border-white/10 shrink-0 h-[calc(100vh-72px)] sticky top-[72px] py-6 px-4 flex flex-col justify-between overflow-y-auto">
+    <aside className="w-64 bg-gray-50 border-r border-gray-200 shrink-0 h-[calc(100vh-72px)] sticky top-[72px] py-6 px-4 flex flex-col justify-between overflow-y-auto">
       <div className="space-y-6">
         <div>
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 block mb-4">
@@ -52,16 +76,16 @@ export default function AdminSidebar({ currentView, onNavigate }: AdminSidebarPr
                   onClick={() => onNavigate(item.view)}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl cursor-pointer text-left transition-all ${
                     isActive
-                      ? 'bg-[#7F77DD]/10 border border-[#7F77DD]/30 text-white'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
+                      ? 'bg-blue-50 border border-blue-200/50 text-blue-700 font-medium'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/85 border border-transparent'
                   }`}
                 >
-                  <div className={`p-1.5 rounded-lg shrink-0 ${isActive ? 'bg-[#7F77DD] text-white' : 'bg-white/5 text-gray-400'}`}>
+                  <div className={`p-1.5 rounded-lg shrink-0 ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
                     <Icon className="w-4 h-4" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold leading-tight">{item.label}</p>
-                    <p className="text-[10px] text-gray-500 font-medium">{item.description}</p>
+                    <p className="text-[10px] text-gray-400 font-medium">{item.description}</p>
                   </div>
                 </button>
               );
@@ -70,8 +94,8 @@ export default function AdminSidebar({ currentView, onNavigate }: AdminSidebarPr
         </div>
       </div>
 
-      <div className="bg-[#161630] border border-white/5 rounded-xl p-3 text-[10px] text-gray-400">
-        <p className="font-semibold text-white mb-1">Chinook DB Live Context</p>
+      <div className="bg-gray-100 border border-gray-200 rounded-xl p-3 text-[10px] text-gray-500">
+        <p className="font-semibold text-gray-700 mb-1">Chinook DB Live Context</p>
         <p>Conectado al servidor de producción musical. Nodos operativos en tiempo real.</p>
       </div>
     </aside>

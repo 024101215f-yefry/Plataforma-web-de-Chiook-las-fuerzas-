@@ -22,7 +22,7 @@ export default function ClientDashboard({
   cartItems,
 }: ClientDashboardProps) {
   
-  // Calculate client metrics based on actual state
+  // Calculate client metrics in Peruvian Soles (S/.)
   const totalSpent = invoices.reduce((acc, inv) => acc + inv.total, 0);
   const totalTracksPurchased = invoices.reduce((acc, inv) => 
     acc + inv.lines.reduce((lAcc, l) => lAcc + l.quantity, 0), 0
@@ -34,78 +34,78 @@ export default function ClientDashboard({
   const kpis = [
     {
       id: 'spent',
-      label: 'Total Invertido',
-      value: `$${totalSpent.toFixed(2)}`,
-      desc: 'En música digital',
+      label: 'Monto Comprado',
+      value: `S/. ${totalSpent.toFixed(2)}`,
+      desc: 'Licencias en Chinook',
       icon: DollarSign,
-      color: 'from-emerald-500/20 to-teal-500/5',
-      textColor: 'text-emerald-400',
+      color: 'bg-emerald-50/50 border-emerald-100 text-emerald-600',
+      iconColor: 'text-emerald-600 bg-white border border-emerald-100',
     },
     {
       id: 'purchased',
-      label: 'Pistas Adquiridas',
-      value: `${totalTracksPurchased} tracks`,
-      desc: 'Formato FLAC / MP3',
+      label: 'Temas Adquiridos',
+      value: `${totalTracksPurchased} pistas`,
+      desc: 'Alta calidad digital',
       icon: Music,
-      color: 'from-[#7F77DD]/20 to-purple-500/5',
-      textColor: 'text-[#7F77DD]',
+      color: 'bg-blue-50/50 border-blue-105 text-blue-600',
+      iconColor: 'text-blue-600 bg-white border border-blue-100',
     },
     {
       id: 'playlists',
       label: 'Mis Playlists',
-      value: `${playlistCount} Listas`,
-      desc: 'Biblioteca personal',
+      value: `${playlistCount} Colecciones`,
+      desc: 'Listas personalizadas',
       icon: ListMusic,
-      color: 'from-amber-500/20 to-orange-500/5',
-      textColor: 'text-amber-400',
+      color: 'bg-amber-50/50 border-amber-100 text-amber-600',
+      iconColor: 'text-amber-600 bg-white border border-amber-100',
     },
     {
       id: 'invoices',
       label: 'Última Factura',
-      value: latestInvoice ? `$${latestInvoice.total.toFixed(2)}` : 'Ninguna',
+      value: latestInvoice ? `S/. ${latestInvoice.total.toFixed(2)}` : 'S/. 0.00',
       desc: latestInvoice ? latestInvoice.id : 'Sin compras aún',
       icon: FileText,
-      color: 'from-blue-500/20 to-indigo-500/5',
-      textColor: 'text-blue-400',
+      color: 'bg-purple-50/50 border-purple-100 text-[#7F77DD]',
+      iconColor: 'text-purple-600 bg-white border border-purple-100',
     },
   ];
 
   const popularGenres = [
     { name: 'Rock alternativo & Metal', percent: 45, count: 11, color: 'bg-red-500' },
-    { name: 'Modern & Classic Jazz', percent: 25, count: 6, color: 'bg-[#7F77DD]' },
+    { name: 'Modern & Classic Jazz', percent: 25, count: 6, color: 'bg-blue-500' },
     { name: 'Música Electrónica / Synth', percent: 20, count: 5, color: 'bg-indigo-500' },
     { name: 'Música Clásica', percent: 10, count: 4, color: 'bg-amber-500' },
   ];
 
   return (
-    <div id="client-dashboard-view" className="space-y-8 font-sans">
+    <div id="client-dashboard-view" className="space-y-6 font-sans">
       
-      {/* Welcome Hero Panel */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-[#171735] to-[#121226] border border-white/5 rounded-2xl p-8 shadow-xl">
-        <div className="absolute top-0 right-0 w-[50%] h-full bg-[#7F77DD]/10 blur-[90px] rounded-full pointer-events-none" />
-        <div className="relative z-10 max-w-2xl">
-          <span className="text-xs font-semibold text-[#7F77DD] tracking-wider uppercase bg-[#7F77DD]/10 px-2.5 py-1 rounded-full border border-[#7F77DD]/20">
-            Miembro MusicStore Gold
+      {/* Welcome Hero Panel with rich blue styling */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 to-indigo-650 rounded-3xl p-7 text-white shadow-md relative shadow-blue-100 select-none">
+        <div className="absolute top-0 right-0 w-[50%] h-full bg-white/5 blur-[50px] rounded-full pointer-events-none" />
+        <div className="relative z-10 max-w-2xl text-left">
+          <span className="text-[10px] font-bold text-blue-100 tracking-wider uppercase bg-white/10 px-3 py-1 rounded-full border border-white/10">
+            Socio MusicStore VIP
           </span>
-          <h2 className="text-3xl font-bold text-white mt-3 leading-tight leading-none tracking-tight">
-            ¡Tu biblioteca de sonido es infinita, explórala!
+          <h2 className="text-2xl sm:text-3xl font-black mt-3 leading-tight tracking-tight">
+            Accede al catálogo global de Chinook DB
           </h2>
-          <p className="text-gray-400 mt-2 text-sm max-w-lg">
-            Bienvenido a tu panel de control de sonido digital. Escucha y administra tus playlists importadas de la base de datos Chinook, y descarga nuevas pistas con máxima fidelidad.
+          <p className="text-blue-100 mt-2 text-xs sm:text-sm max-w-lg leading-relaxed">
+            Bienvenido a tu panel de control de sonido digital. Escucha y administra tus canciones del catálogo académico, genera facturas virtuales en soles peruanos con descarga de audio.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-wrap gap-3">
             <button
               onClick={() => onNavigate('music-catalog')}
-              className="px-5 py-2.5 bg-[#7F77DD] hover:bg-[#6e66c4] cursor-pointer text-white font-medium rounded-xl text-xs shadow-lg flex items-center gap-2 transition-all"
+              className="px-4 py-2.5 bg-white hover:bg-gray-100 cursor-pointer text-blue-750 text-blue-700 font-bold rounded-xl text-xs flex items-center gap-1.5 transition duration-150 shadow-sm"
             >
-              Explorar Catálogo de Música
-              <ArrowUpRight className="w-4 h-4" />
+              Explorar Catálogo
+              <ArrowUpRight className="w-4 h-4 text-blue-650" />
             </button>
             <button
               onClick={() => onNavigate('my-playlists')}
-              className="px-5 py-2.5 bg-white/5 hover:bg-white/10 cursor-pointer text-gray-300 hover:text-white rounded-xl border border-white/10 text-xs transition"
+              className="px-4 py-2.5 bg-white/10 hover:bg-white/15 cursor-pointer text-white rounded-xl text-xs transition font-semibold"
             >
-              Ver mis Listas de Reproducción
+              Mis Playlists Personales
             </button>
           </div>
         </div>
@@ -121,14 +121,14 @@ export default function ClientDashboard({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05, duration: 0.4 }}
               key={kpi.id}
-              className={`p-5 rounded-2xl bg-gradient-to-br ${kpi.color} border border-white/5 shadow-md flex items-center justify-between group hover:border-[#7F77DD]/20 transition`}
+              className={`p-5 rounded-2xl bg-white border ${kpi.color} shadow-sm flex items-center justify-between group hover:shadow-md transition text-left`}
             >
               <div>
-                <span className="text-xs font-medium text-gray-400 block mb-1">{kpi.label}</span>
-                <span className="text-2xl font-bold text-white block tracking-tight">{kpi.value}</span>
-                <span className="text-[10px] text-gray-400 mt-1 block">{kpi.desc}</span>
+                <span className="text-[11px] font-bold text-gray-500 block mb-1 uppercase tracking-wider">{kpi.label}</span>
+                <span className="text-2xl font-black text-gray-900 block tracking-tight">{kpi.value}</span>
+                <span className="text-[10px] font-bold text-gray-400 mt-0.5 block">{kpi.desc}</span>
               </div>
-              <div className={`p-3 rounded-xl bg-white/5 ${kpi.textColor} group-hover:scale-110 transition duration-300`}>
+              <div className={`p-2.5 rounded-xl ${kpi.iconColor} group-hover:scale-105 transition duration-300 shrink-0 shadow-sm`}>
                 <Icon className="w-5 h-5" />
               </div>
             </motion.div>
@@ -140,14 +140,14 @@ export default function ClientDashboard({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Recommended Tracks Panel */}
-        <div className="col-span-1 lg:col-span-2 bg-[#111125] border border-white/5 rounded-2xl p-6 shadow-md flex flex-col justify-between">
+        <div className="col-span-1 lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-5">
-              <h3 className="font-semibold text-lg text-white flex items-center gap-2">
-                <Star className="w-4 h-4 text-[#7F77DD]" />
-                Canciones Recomendadas para Ti
+              <h3 className="font-bold text-base text-gray-900 flex items-center gap-2 select-none">
+                <Star className="w-4.5 h-4.5 text-blue-600" />
+                Recomendaciones Temáticas para Ti
               </h3>
-              <span className="text-xs text-gray-400 italic">Basado en tu historial</span>
+              <span className="text-xs text-gray-450 font-semibold bg-gray-100 px-2.5 py-0.5 rounded-full text-gray-600 select-none">Chinook Best-Sellers</span>
             </div>
 
             <div className="space-y-3">
@@ -156,41 +156,41 @@ export default function ClientDashboard({
                 return (
                   <div
                     key={track.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-[#161630] border border-white/5 hover:border-white/10 hover:bg-[#1b1b3a] transition-all group"
+                    className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-150 hover:bg-slate-100/50 transition-all group text-left"
                   >
                     <div className="flex items-center gap-3 pr-2 truncate">
-                      <div className="w-8 h-8 rounded-lg bg-[#111122] flex items-center justify-center text-gray-500 shrink-0 font-mono text-xs font-semibold group-hover:text-[#7F77DD]">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-gray-250/60 text-gray-400 flex items-center justify-center shrink-0 font-mono text-xs font-bold group-hover:text-blue-600 select-none">
                         {i + 1}
                       </div>
                       <div className="truncate">
-                        <p className="text-xs font-semibold text-white truncate">{track.name}</p>
+                        <p className="text-xs font-bold text-gray-905 text-gray-900 truncate">{track.name}</p>
                         <p className="text-[10px] text-gray-400 truncate">{track.composer || 'Desconocido'}</p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-xs text-gray-500 pr-2 border-r border-white/5 font-mono">{track.duration}</span>
-                      <span className="text-xs font-bold text-[#7F77DD] font-mono pr-2">${track.unitPrice.toFixed(2)}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs text-gray-400 pr-2 border-r border-gray-200 font-mono select-none">{track.duration}</span>
+                      <span className="text-xs font-bold text-blue-600 font-mono pr-2">S/. {track.unitPrice.toFixed(2)}</span>
                       
                       {/* Play Action */}
                       <button
                         onClick={() => onPlayTrack(track)}
-                        className="p-1.5 rounded-lg bg-white/5 text-gray-400 hover:text-white hover:bg-[#7F77DD] transition cursor-pointer"
-                        title="Reproducir pista"
+                        className="p-1.5 rounded-lg bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition cursor-pointer"
+                        title="Escuchar muestra"
                       >
-                        <Play className="w-3.5 h-3.5" />
+                        <Play className="w-3.5 h-3.5 fill-current" />
                       </button>
 
                       {/* Buy Component */}
                       <button
                         onClick={() => onAddTrackToCart(track)}
                         disabled={isAlreadyInCart}
-                        className={`p-1.5 rounded-lg transition cursor-pointer ${
+                        className={`p-1.5 rounded-lg transition cursor-pointer border ${
                           isAlreadyInCart 
-                            ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-900/30' 
-                            : 'bg-white/5 text-gray-300 hover:bg-[#7F77DD] hover:text-white'
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                            : 'bg-white border-gray-200 text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100'
                         }`}
-                        title={isAlreadyInCart ? "En el carrito" : "Agregar canción"}
+                        title={isAlreadyInCart ? "En el carrito de compras" : "Agregar canción"}
                       >
                         {isAlreadyInCart ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
                       </button>
@@ -204,49 +204,49 @@ export default function ClientDashboard({
           <div className="mt-5 text-center">
             <button
               onClick={() => onNavigate('music-catalog')}
-              className="text-xs font-semibold text-[#7F77DD] hover:text-white flex items-center justify-center gap-1.5 mx-auto transition cursor-pointer"
+              className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center justify-center gap-1.5 mx-auto transition cursor-pointer"
             >
-              Ver catálogo completo y filtrar por artista o género
-              <Plus className="w-3 h-3" />
+              Ver menú de catálogo completo y aplicar filtros
+              <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
-        {/* Sidebar Info column */}
+        {/* Sidebar Info columns */}
         <div className="space-y-6">
           
-          {/* Update to Gold / Premium CTA card */}
-          <div className="bg-[#1a1a2e]/60 border border-purple-500/20 rounded-2xl p-5 relative overflow-hidden bg-gradient-to-b from-[#1c1c3a] to-[#121223] shadow-md">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#7F77DD]/20 blur-[40px] pointer-events-none rounded-full" />
-            <div className="flex gap-2.5 items-center mb-3">
-              <Sparkles className="w-5 h-5 text-amber-400 animate-pulse" />
-              <span className="font-bold text-xs uppercase tracking-wider text-amber-400">PLAN PREMIUM CHINOOK GOLD</span>
+          {/* Plan Premium promotion card */}
+          <div className="bg-white border border-purple-200 rounded-3xl p-5 relative overflow-hidden bg-gradient-to-b from-purple-50/50 to-white shadow-sm text-left select-none">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-100 blur-[45px] pointer-events-none rounded-full" />
+            <div className="flex gap-2 items-center mb-3">
+              <Sparkles className="w-4.5 h-4.5 text-amber-500 animate-pulse" />
+              <span className="font-extrabold text-[10px] uppercase tracking-wider text-amber-600">MENSUALIDAD PREMIUM CHINOOK GOLD</span>
             </div>
-            <p className="text-sm font-bold text-white mb-1.5">Descargas ilimitadas de por vida</p>
-            <p className="text-xs text-gray-400 leading-relaxed mb-4">
-              Por un pago único de <strong>$19.90</strong>, accede a descargas de FLAC premium de 24 bits de más de 3,000 pistas disponibles en el modelo de base de datos.
+            <p className="text-sm font-bold text-gray-900 mb-1.5">Descargas ilimitadas de por vida</p>
+            <p className="text-xs text-gray-500 leading-relaxed mb-4">
+              Por un abono académico único de <strong>S/. 19.90</strong>, accede a descargas de MP3 premium de 320 kbps y FLAC de todas las canciones disponibles en Chinook.
             </p>
             <button
               onClick={() => {
-                alert("¡Felicidades! Se ha activado la simulación Premium Gold para tu cuenta. Disfruta de la calidad de audio.");
+                alert("¡Felicidades! Se ha activado la simulación Premium Gold para tu cuenta. Disfruta del audio de alta definición.");
               }}
-              className="w-full text-center py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-[#10101e] font-bold text-xs rounded-lg shadow-md transition-all cursor-pointer"
+              className="w-full text-center py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-gray-950 font-extrabold text-xs rounded-xl shadow transition-all cursor-pointer border border-transparent"
             >
-              Adquirir ahora
+              Activar Plan VIP
             </button>
           </div>
 
           {/* Popular Genres breakdown */}
-          <div className="bg-[#111125] border border-white/5 rounded-2xl p-5 shadow-md">
-            <h3 className="font-semibold text-sm text-white mb-4">Géneros Populares de tu cuenta</h3>
-            <div className="space-y-4">
+          <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm text-left select-none">
+            <h3 className="font-bold text-sm text-gray-900 mb-4">Consumición por Categorías</h3>
+            <div className="space-y-3.5">
               {popularGenres.map((genre) => (
                 <div key={genre.name} className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-medium">
-                    <span className="text-gray-300 font-medium truncate">{genre.name}</span>
-                    <span className="text-gray-400 font-mono">{genre.percent}%</span>
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className="text-gray-600 truncate">{genre.name}</span>
+                    <span className="text-gray-400 font-mono font-bold">{genre.percent}%</span>
                   </div>
-                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden block">
+                  <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden block">
                     <div className={`h-full rounded-full ${genre.color}`} style={{ width: `${genre.percent}%` }} />
                   </div>
                 </div>

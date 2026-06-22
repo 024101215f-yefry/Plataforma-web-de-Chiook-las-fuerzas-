@@ -67,6 +67,16 @@ export interface Playlist {
   isCustom?: boolean;
 }
 
+export interface Artist {
+  id: number;
+  name: string;
+}
+
+export interface Genre {
+  id: number;
+  name: string;
+}
+
 export type ViewType =
   | 'login'
   | 'client-dashboard'
@@ -77,7 +87,11 @@ export type ViewType =
   | 'admin-dashboard'
   | 'client-management'
   | 'sales-report'
-  | 'employee-management';
+  | 'employee-management'
+  | 'admin-albums'
+  | 'admin-artists'
+  | 'admin-genres'
+  | 'admin-tracks';
 
 export interface UserSession {
   role: 'cliente' | 'admin';

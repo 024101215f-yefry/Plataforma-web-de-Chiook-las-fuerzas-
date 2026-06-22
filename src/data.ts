@@ -1,4 +1,4 @@
-import { Album, Track, Client, Invoice, Employee, Playlist } from './types';
+import { Album, Track, Client, Invoice, Employee, Playlist, Artist, Genre } from './types';
 
 // Albums data from Chinook database reference + a few modern ones
 export const INITIAL_ALBUMS: Album[] = [
@@ -314,3 +314,26 @@ export const PLAYLIST_TRACKS_MAP: Record<number, number[]> = {
   3: [601, 603, 604, 103, 501], // Electro, Jazz & Classical
   4: [401, 402],           // Metal tracks
 };
+
+export const INITIAL_ARTISTS: Artist[] = [
+  { id: 1, name: "Miles Davis" },
+  { id: 2, name: "AC/DC" },
+  { id: 3, name: "Nirvana" },
+  { id: 4, name: "Metallica" },
+  { id: 5, name: "Vivaldi" },
+  { id: 6, name: "Daft Punk" },
+  { id: 7, name: "Led Zeppelin" },
+  { id: 8, name: "Coldplay" },
+  { id: 9, name: "Deep Purple" },
+];
+
+export const INITIAL_GENRES: Genre[] = [
+  { id: 1, name: "Rock" },
+  { id: 2, name: "Jazz" },
+  { id: 3, name: "Metal" },
+  { id: 4, name: "Classical" },
+  { id: 5, name: "Electronic" },
+  { id: 6, name: "Pop" },
+  { id: 7, name: "Blues" },
+  { id: 8, name: "Reggae" },
+];
